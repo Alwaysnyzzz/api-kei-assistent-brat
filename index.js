@@ -2,45 +2,24 @@ const express = require('express');
 const Jimp = require('jimp');
 const app = express();
 
-// Gunakan constructor yang benar (untuk jimp 0.22.12)
-const JimpConstructor = Jimp;
-
 app.get('/image', async (req, res) => {
     const text = req.query.text;
-    if (!text) {
-        return res.status(400).json({ error: 'Parameter text wajib diisi' });
-    }
+    if (!text) return res.status(400).json({ error: 'Parameter text wajib' });
 
     try {
-        // Buat gambar ukuran 800x400 background putih
-        const image = new JimpConstructor(800, 400, 0xffffffff);
-        
-        // Load font (ukuran 32 lebih stabil)
-        const font = await JimpConstructor.loadFont(JimpConstructor.FONT_SANS_32_BLACK);
-        
-        // Hitung posisi teks agar di tengah
-        const textWidth = JimpConstructor.measureText(font, text);
-        const textHeight = JimpConstructor.measureTextHeight(font, text, 800);
+        const image = new Jimp(800, 400, 0xffffffff);
+        // Ganti dengan font ukuran 16 (lebih kecil, lebih aman)
+        const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+        const textWidth = Jimp.measureText(font, text);
         const x = (800 - textWidth) / 2;
-        const y = (400 - textHeight) / 2;
-        
-        // Gambar teks
-        image.print(font, x, y, text);
-        
-        // Konversi ke buffer PNG
-        const buffer = await image.getBufferAsync(JimpConstructor.MIME_PNG);
-        
-        // Kirim sebagai gambar
-        res.set('Content-Type', 'image/png');
-        res.send(buffer);
+        image.print(font, x, 180, text);
+        const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
+        res.set('Content-Type', 'image/png').send(buffer);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Gagal', detail: err.message });
     }
 });
 
-app.get('/', (req, res) => {
-    res.send('API Brat siap digunakan. Gunakan endpoint /image?text=...');
-});
-
+app.get('/', (req, res) => res.send('API Brat siap'));
 module.exports = app;
