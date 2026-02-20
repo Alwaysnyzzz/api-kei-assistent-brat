@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^5.2.1",
-    "jimp": "^1.6.0"
+    "jimp": "^0.22.12"
   }
 }
